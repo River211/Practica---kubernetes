@@ -1,0 +1,99 @@
+﻿# Default values for webapp Helm Chart
+# This file controls all configurable parameters of the application
+
+# ──────────────────────────────────────────
+# Replicas
+# ──────────────────────────────────────────
+replicaCount: 2
+
+# ──────────────────────────────────────────
+# Image configuration
+# ──────────────────────────────────────────
+image:
+  repository: nginx
+  pullPolicy: IfNotPresent
+  tag: "1.25.3"
+
+imagePullSecrets: []
+
+# ──────────────────────────────────────────
+# Application metadata
+# ──────────────────────────────────────────
+nameOverride: ""
+fullnameOverride: ""
+
+# ──────────────────────────────────────────
+# Service Account
+# ──────────────────────────────────────────
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# ──────────────────────────────────────────
+# Pod annotations and labels
+# ──────────────────────────────────────────
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+# ──────────────────────────────────────────
+# Service
+# ──────────────────────────────────────────
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 80
+
+# ──────────────────────────────────────────
+# Ingress
+# ──────────────────────────────────────────
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: webapp.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+# ──────────────────────────────────────────
+# Resources
+# ──────────────────────────────────────────
+resources:
+  limits:
+    cpu: 200m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+# ──────────────────────────────────────────
+# Autoscaling
+# ──────────────────────────────────────────
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
+
+# ──────────────────────────────────────────
+# ConfigMap – app environment config
+# ──────────────────────────────────────────
+config:
+  APP_ENV: "production"
+  APP_PORT: "80"
+  LOG_LEVEL: "info"
+  WELCOME_MESSAGE: "Hello from GitOps with Helm + Argo CD!"
+
+# ──────────────────────────────────────────
+# Node selectors, tolerations, affinity
+# ──────────────────────────────────────────
+nodeSelector: {}
+tolerations: []
+affinity: {}
