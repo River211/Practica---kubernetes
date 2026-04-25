@@ -1,0 +1,55 @@
+# ──────────────────────────────────────────────────────────────
+# Argo CD Application – GitOps declarative app definition
+# Apply with: kubectl apply -f argocd-application.yaml -n argocd
+# ──────────────────────────────────────────────────────────────
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: webapp
+  namespace: argocd
+  labels:
+    app.kubernetes.io/name: webapp
+    managed-by: argocd
+  # Finalizer ensures Argo CD cleans up resources when the Application is deleted
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  # ── Project ──────────────────────────────────────────────────
+  project: default
+
+  # ── Source – your Git repository ─────────────────────────────
+  source:
+    # TODO: Replace with your actual GitHub/GitLab repository URL
+    repoURL: https://github.com/River211/Practica---kubernetes
+    targetRevision: main          # branch, tag, or commit SHA
+    path: helm-chart              # folder inside the repo that contains the Helm chart
+
+    # Helm-specific configuration
+    helm:
+      releaseName: webapp
+      # Override values without changing values.yaml
+      values: |
+        replicaCount: 2
+        image:
+          tag: "1.25.3"
+
+  # ── Destination – where to deploy ────────────────────────────
+  destination:
+    server: https://kubernetes.default.svc   # in-cluster deployment
+    namespace: webapp                         # target namespace
+
+  # ── Sync Policy – automated GitOps ──────────────────────────
+  syncPolicy:
+    automated:
+      prune: true       # delete resources removed from Git
+      selfHeal: true    # revert manual changes in the cluster
+    syncOptions:
+      - CreateNamespace=true        # create namespace if it doesn't exist
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
